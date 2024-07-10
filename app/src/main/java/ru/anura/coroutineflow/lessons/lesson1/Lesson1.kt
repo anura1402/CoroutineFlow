@@ -16,6 +16,7 @@ suspend fun main() {
         .collect { println(it) }
 }
 
+
 suspend fun Int.isPrime(): Boolean {
     if (this <= 1) return false
     for (i in 2..this / 2) {
