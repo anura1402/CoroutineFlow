@@ -19,59 +19,20 @@ import kotlinx.coroutines.launch
 
 class CryptoViewModel : ViewModel() {
 
-//    private val repository = CryptoRepository
-//
-//
-//           val state: LiveData<State> = repository.getCurrencyList()
-//                .filter { it.isNotEmpty() }
-//                .map { State.Content(currencyList = it) as State}
-//                .onStart { emit(State.Loading) }
-//                .asLiveData()
-
     private val repository = CryptoRepository
 
-    private val _state = MutableLiveData<State>(State.Initial)
-    val state: LiveData<State> = _state
-
-    private var job: Job? = null
-    private var isResumed= false
-
-    init {
-        loadData()
-    }
-
-    fun loadData() {
-        isResumed = true
-        if (job!=null) return
-        job = repository.getCurrencyList()
-            .onStart {
-                Log.d("CryptoViewModel", "Started")
-                _state.value = State.Loading
-            }
-            .filter { it.isNotEmpty() }
-            .onEach {
-                Log.d("CryptoViewModel", "onEach")
-                _state.value = State.Content(currencyList = it)
-            }
-            .onCompletion {
-                Log.d("CryptoViewModel", "Completed")
-            }
-            .launchIn(viewModelScope)
-    }
-
-    fun stopLoading(){
-        viewModelScope.launch {
-            delay(5000)
-            if (!isResumed){
-                job?.cancel()
-                job = null
-            } else{
-                isResumed = false
-            }
-
+    val state: LiveData<State> = repository.getCurrencyList()
+        .filter { it.isNotEmpty() }
+        .map { State.Content(currencyList = it) as State }
+        .onStart {
+            Log.d("CryptoViewModel", "onStart")
+            emit(State.Loading)
         }
-
-
-    }
-
+        .onEach {
+            Log.d("CryptoViewModel", "onEach")
+        }
+        .onCompletion {
+            Log.d("CryptoViewModel", "onCompletion")
+        }
+        .asLiveData()
 }
