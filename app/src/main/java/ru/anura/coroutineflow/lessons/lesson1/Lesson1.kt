@@ -1,4 +1,4 @@
-package ru.anura.coroutineflow.lessons
+package ru.anura.coroutineflow.lessons.lesson1
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
