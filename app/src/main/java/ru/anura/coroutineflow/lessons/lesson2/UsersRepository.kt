@@ -1,6 +1,8 @@
 package ru.anura.coroutineflow.lessons.lesson2
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 object UsersRepository {
 
@@ -11,8 +13,11 @@ object UsersRepository {
         users.add(user)
     }
 
-    suspend fun loadUsers(): List<String> {
-        delay(10)
-        return users.toList()
+    suspend fun loadUsers(): Flow<List<String>> = flow{
+        //пока что плохой подход
+        while (true) {
+            emit(users.toList())
+            delay(500)
+        }
     }
 }
