@@ -3,8 +3,6 @@ package ru.anura.coroutineflow.lessons.crypto_app_lesson_4
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlin.random.Random
 
@@ -12,13 +10,25 @@ object CryptoRepository {
 
     private val currencyNames = listOf("BTC", "ETH", "USDT", "BNB", "USDC")
     private val currencyList = mutableListOf<Currency>()
-    private val _currencyListFlow = MutableSharedFlow<List<Currency>>()
-    val currencyListFlow = _currencyListFlow.asSharedFlow()
 
-    suspend fun loadData() {
+    private val refreshEvents = MutableSharedFlow<Unit>()
+
+    //холодный поток
+    fun getCurrencyList(): Flow<List<Currency>> = flow {
         delay(3000)
         generateCurrencyList()
-        _currencyListFlow.emit(currencyList.toList())
+        emit(currencyList.toList())
+        //горячий поток
+        //будет работать всегда при обновлении
+        refreshEvents.collect {
+            delay(3000)
+            generateCurrencyList()
+            emit(currencyList.toList())
+        }
+    }
+
+    suspend fun refreshList() {
+        refreshEvents.emit(Unit)
     }
 
     private fun generateCurrencyList() {
