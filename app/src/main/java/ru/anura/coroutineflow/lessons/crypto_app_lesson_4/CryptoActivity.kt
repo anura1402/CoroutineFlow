@@ -33,6 +33,9 @@ class CryptoActivity : AppCompatActivity() {
         setContentView(binding.root)
         setupRecyclerView()
         observeViewModel()
+        binding.buttonRefreshList.setOnClickListener {
+            viewModel.refreshList()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -42,39 +45,25 @@ class CryptoActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         lifecycleScope.launch {
-            //первый способ остановки загрузки после сворачивания приложения
-            //repeatOnLifecycle(Lifecycle.State.RESUMED){
-                viewModel.state
-                    //новый flow
-                    .transform {
-                        Log.d("CryptoViewModel", "Transform")
-                        delay(10_000)
-                        emit(it)
-                    }
-                    //второй способ остановки загрузки после сворачивания приложения
-                    //но действует только на то, что выше
-                    //если будет новый flow ниже, то он не будет останавливаться
-                    .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                    .collect {
-                        when (it) {
-                            is State.Initial -> {
-                                binding.progressBarLoading.isVisible = false
-                            }
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.state.collect {
+                    when (it) {
+                        is State.Initial -> {
+                            binding.progressBarLoading.isVisible = false
+                        }
 
-                            is State.Loading -> {
-                                binding.progressBarLoading.isVisible = true
-                            }
+                        is State.Loading -> {
+                            binding.progressBarLoading.isVisible = true
+                        }
 
-                            is State.Content -> {
-                                binding.progressBarLoading.isVisible = false
-                                adapter.submitList(it.currencyList)
-                            }
+                        is State.Content -> {
+                            binding.progressBarLoading.isVisible = false
+                            adapter.submitList(it.currencyList)
                         }
                     }
-            //}
-
+                }
+            }
         }
-
     }
 
     companion object {
