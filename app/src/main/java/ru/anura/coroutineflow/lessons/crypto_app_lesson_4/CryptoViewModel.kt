@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
@@ -21,7 +22,7 @@ class CryptoViewModel : ViewModel() {
 
     private val repository = CryptoRepository
 
-    val state: LiveData<State> = repository.getCurrencyList()
+    val state: Flow<State> = repository.getCurrencyList()
         .filter { it.isNotEmpty() }
         .map { State.Content(currencyList = it) as State }
         .onStart {
@@ -34,5 +35,4 @@ class CryptoViewModel : ViewModel() {
         .onCompletion {
             Log.d("CryptoViewModel", "onCompletion")
         }
-        .asLiveData()
 }
