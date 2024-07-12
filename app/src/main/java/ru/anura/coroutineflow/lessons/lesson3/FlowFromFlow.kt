@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 
 suspend fun main() {
